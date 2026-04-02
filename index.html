@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DRK Stickers — Dev Task Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f9f9f9;
+    color: #1a1a1a;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* HEADER */
+  header {
+    background: #fff;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo { font-weight: 600; font-size: 15px; color: #111; }
+  .logo span { color: #888; font-weight: 400; font-size: 13px; margin-left: 8px; }
+
+  .header-badges { display: flex; gap: 8px; }
+
+  .pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    background: #f4f4f4;
+    color: #555;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* LAYOUT */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 53px);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid #e5e5e5;
+    padding: 24px 0;
+    position: sticky;
+    top: 53px;
+    height: calc(100vh - 53px);
+    overflow-y: auto;
+    background: #fff;
+  }
+
+  .sidebar-group { margin-bottom: 20px; }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #aaa;
+    padding: 0 20px;
+    margin-bottom: 4px;
+  }
+
+  .sidebar-item {
+    display: block;
+    padding: 7px 20px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .sidebar-item:hover { color: #111; background: #f7f7f7; }
+  .sidebar-item.active { color: #111; border-left-color: #111; background: #f7f7f7; font-weight: 500; }
+
+  /* MAIN */
+  .main { padding: 32px 40px; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 28px;
+  }
+
+  .tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #888;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    background: none;
+    border-top: none; border-left: none; border-right: none;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: #333; }
+  .tab.active { color: #111; border-bottom-color: #111; }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* PRIORITY GROUP */
+  .group { margin-bottom: 36px; }
+
+  .group-header {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .group-header::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e5e5e5;
+  }
+
+  /* TASK CARD */
+  .card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .card-header:hover { background: #fafafa; }
+
+  .task-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #bbb;
+    width: 42px;
+    flex-shrink: 0;
+  }
+
+  .task-name { font-weight: 500; font-size: 14px; flex: 1; }
+
+  .tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    background: #f7f7f7;
+  }
+
+  .tag.critical { color: #c0392b; border-color: #f5c6c3; background: #fdf3f2; }
+  .tag.onpage   { color: #b35900; border-color: #fad9b8; background: #fdf6ef; }
+  .tag.content  { color: #1a7a4a; border-color: #b6e5cc; background: #f0faf5; }
+
+  .chevron { color: #ccc; font-size: 12px; transition: transform 0.2s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .card-body { display: none; padding: 0 18px 18px; border-top: 1px solid #f0f0f0; }
+  .card-body.open { display: block; }
+
+  .card-body p {
+    color: #555;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .file-ref {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: #f4f4f4;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    padding: 2px 7px;
+    color: #444;
+    margin: 2px 2px 2px 0;
+  }
+
+  /* CODE */
+  .code-block {
+    background: #1e1e1e;
+    border-radius: 7px;
+    margin: 12px 0;
+    overflow: hidden;
+    font-size: 12px;
+  }
+
+  .code-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    background: #2a2a2a;
+    border-bottom: 1px solid #333;
+  }
+
+  .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #888; letter-spacing: 1px; text-transform: uppercase; }
+
+  .copy-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: #3a3a3a;
+    border: 1px solid #444;
+    color: #aaa;
+    padding: 3px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { background: #444; color: #eee; }
+  .copy-btn.ok { color: #5cb85c; border-color: #5cb85c; }
+
+  .code-scroll { overflow-x: auto; padding: 14px; }
+
+  pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #d4d4d4;
+    white-space: pre;
+    margin: 0;
+  }
+
+  .k { color: #c792ea; }
+  .s { color: #a8d8a8; }
+  .c { color: #555; font-style: italic; }
+
+  /* HINT */
+  .hint {
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
+    border-left: 3px solid #aaa;
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: #555;
+    margin-top: 12px;
+    line-height: 1.6;
+  }
+
+  .hint strong { color: #333; }
+
+  /* INSTALL CMD */
+  .cmd {
+    display: flex;
+    align-items: center;
+    background: #1e1e1e;
+    border-radius: 6px;
+    padding: 10px 14px;
+    gap: 8px;
+    margin: 8px 0;
+  }
+
+  .cmd span { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #a8d8a8; flex: 1; }
+  .cmd .dollar { color: #666; }
+
+  /* CHECKLIST */
+  .checklist { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+
+  .cl-head { padding: 12px 18px; font-weight: 600; font-size: 13px; border-bottom: 1px solid #f0f0f0; background: #fafafa; }
+
+  .cl-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 18px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: background 0.1s;
+    font-size: 13px;
+  }
+
+  .cl-item:last-child { border-bottom: none; }
+  .cl-item:hover { background: #fafafa; }
+  .cl-item.done { opacity: 0.45; }
+  .cl-item.done .cl-task { text-decoration: line-through; }
+
+  .cl-box {
+    width: 16px; height: 16px;
+    border: 1.5px solid #ccc;
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    color: transparent;
+    transition: all 0.15s;
+  }
+
+  .cl-item.done .cl-box { background: #333; border-color: #333; color: #fff; }
+
+  .cl-task { flex: 1; color: #333; }
+  .cl-file { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #aaa; }
+
+  /* KW TABLE */
+  .kw-table-wrap { background: #fff; border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: #888; border-bottom: 1px solid #e5e5e5; background: #fafafa; }
+  td { padding: 11px 16px; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+
+  .vol { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .bar { display: inline-block; height: 3px; border-radius: 2px; background: #333; vertical-align: middle; margin-left: 8px; }
+
+  /* COMPETITOR CARDS */
+  .comp-card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+  }
+
+  .comp-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .comp-name { font-weight: 600; font-size: 14px; }
+  .comp-url { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #999; margin-top: 2px; }
+  .comp-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .stat-val { font-size: 18px; font-weight: 700; color: #111; }
+  .stat-lbl { font-size: 10px; color: #aaa; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px; text-transform: uppercase; }
+  .comp-card.yours .stat-val { color: #c0392b; }
+
+  /* PAGE TITLE */
+  .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #888; margin-bottom: 24px; }
+
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+    .comp-stats { grid-template-columns: repeat(2, 1fr); }
+    .card-header { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">DRK Stickers <span>Developer SEO Guide</span></div>
+  <div class="header-badges">
+    <span class="pill">React + Vite</span>
+    <span class="pill">10 tasks</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-group">
+      <div class="sidebar-label">Critical</div>
+      <a class="sidebar-item active" href="#task1" onclick="hl(this)">robots.txt</a>
+      <a class="sidebar-item" href="#task2" onclick="hl(this)">sitemap.xml</a>
+      <a class="sidebar-item" href="#task3" onclick="hl(this)">Meta Tags</a>
+      <a class="sidebar-item" href="#task4" onclick="hl(this)">Google Analytics</a>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-label">On-Page SEO</div>
+      <a class="sidebar-item" href="#task5" onclick="hl(this)">Image Alt Text</a>
+      <a class="sidebar-item" href="#task6" onclick="hl(this)">Schema Markup</a>
+      <a class="sidebar-item" href="#task7" onclick="hl(this)">Internal Links</a>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-label">Content</div>
+      <a class="sidebar-item" href="#task8" onclick="hl(this)">Page Routes</a>
+      <a class="sidebar-item" href="#task9" onclick="hl(this)">FAQ Section</a>
+      <a class="sidebar-item" href="#task10" onclick="hl(this)">Local SEO Copy</a>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('tasks', this)">Tasks</button>
+      <button class="tab" onclick="showTab('checklist', this)">Checklist</button>
+      <button class="tab" onclick="showTab('keywords', this)">Keywords</button>
+      <button class="tab" onclick="showTab('competitors', this)">Competitors</button>
+    </div>
+
+    <!-- TASKS -->
+    <div id="tab-tasks" class="section active">
+
+      <div class="group">
+        <div class="group-header">🔴 Critical — Fix First</div>
+
+        <div class="card" id="task1">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">01</span>
+            <span class="task-name">Create robots.txt</span>
+            <span class="file-ref">public/robots.txt</span>
+            <span class="tag critical">Critical</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>Likely missing or misconfigured — may be blocking Google's crawler entirely. Place in <code>public/</code> so Vite serves it at the site root.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">robots.txt</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre>User-agent: *
+Allow: /
+
+Sitemap: https://www.drkstickers.com/sitemap.xml</pre></div>
+            </div>
+            <div class="hint">💡 <strong>Verify after deploy:</strong> Visit <code>drkstickers.com/robots.txt</code> in the browser to confirm it's live.</div>
+          </div>
+        </div>
+
+        <div class="card" id="task2">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">02</span>
+            <span class="task-name">Create sitemap.xml</span>
+            <span class="file-ref">public/sitemap.xml</span>
+            <span class="tag critical">Critical</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>Tells Google about all your pages. Without it, important pages may never get crawled even after indexing is fixed.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">xml</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://www.drkstickers.com/&lt;/loc&gt;
+    &lt;priority&gt;1.0&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://www.drkstickers.com/services&lt;/loc&gt;
+    &lt;priority&gt;0.9&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://www.drkstickers.com/gallery&lt;/loc&gt;
+    &lt;priority&gt;0.8&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://www.drkstickers.com/about&lt;/loc&gt;
+    &lt;priority&gt;0.7&lt;/priority&gt;
+  &lt;/url&gt;
+  &lt;url&gt;
+    &lt;loc&gt;https://www.drkstickers.com/contact&lt;/loc&gt;
+    &lt;priority&gt;0.7&lt;/priority&gt;
+  &lt;/url&gt;
+&lt;/urlset&gt;</pre></div>
+            </div>
+            <div class="hint">💡 <strong>After deploy:</strong> Go to Google Search Console → Sitemaps → submit <code>sitemap.xml</code>.</div>
+          </div>
+        </div>
+
+        <div class="card" id="task3">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">03</span>
+            <span class="task-name">Add Meta Titles & Descriptions (all 6 pages)</span>
+            <span class="file-ref">src/pages/*.jsx</span>
+            <span class="tag critical">Critical</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>6 pages are missing meta tags. Google won't show meaningful search snippets without them.</p>
+            <p><strong>Step 1</strong> — Install:</p>
+            <div class="cmd"><span class="dollar">$</span><span>npm install react-helmet-async</span><button class="copy-btn" onclick="cpText(this,'npm install react-helmet-async')">Copy</button></div>
+            <p><strong>Step 2</strong> — Wrap in main.jsx:</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">main.jsx</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre><span class="k">import</span> { HelmetProvider } <span class="k">from</span> <span class="s">'react-helmet-async'</span>
+
+&lt;HelmetProvider&gt;
+  &lt;App /&gt;
+&lt;/HelmetProvider&gt;</pre></div>
+            </div>
+            <p><strong>Step 3</strong> — Add to each page:</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">Home.jsx</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre><span class="k">import</span> { Helmet } <span class="k">from</span> <span class="s">'react-helmet-async'</span>
+
+&lt;Helmet&gt;
+  &lt;title&gt;Custom Car Wraps &amp; Stickers in Chennai | DRK Stickers&lt;/title&gt;
+  &lt;meta name="description"
+    content="DRK Stickers — premium vinyl wraps, ceramic coating
+    and vehicle branding in Chennai. Book today." /&gt;
+&lt;/Helmet&gt;</pre></div>
+            </div>
+            <p><strong>Suggested titles per page:</strong></p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">reference</span></div>
+              <div class="code-scroll"><pre><span class="c">// Home</span>
+"Custom Car Wraps &amp; Stickers in Chennai | DRK Stickers"
+
+<span class="c">// Services</span>
+"Car Wrap, Ceramic Coating &amp; Vinyl Services | DRK Stickers"
+
+<span class="c">// Gallery</span>
+"Work Gallery – Car Wraps &amp; Stickers | DRK Stickers"
+
+<span class="c">// About</span>
+"About Us – Vehicle Branding Experts in Chennai | DRK Stickers"
+
+<span class="c">// Contact</span>
+"Book a Car Wrap in Chennai | DRK Stickers"
+
+<span class="c">// Blog</span>
+"Car Care Tips &amp; Vinyl Wrap Guides | DRK Stickers Blog"</pre></div>
+            </div>
+            <div class="hint">💡 Keep titles under <strong>60 chars</strong>, descriptions under <strong>155 chars</strong>. Every page must have a unique title.</div>
+          </div>
+        </div>
+
+        <div class="card" id="task4">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">04</span>
+            <span class="task-name">Add Google Analytics GA4</span>
+            <span class="file-ref">index.html</span>
+            <span class="tag critical">Critical</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>No analytics tool detected. You can't track improvements without it.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">index.html — inside &lt;head&gt;</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre>&lt;script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"&gt;&lt;/script&gt;
+&lt;script&gt;
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+&lt;/script&gt;</pre></div>
+            </div>
+            <div class="hint">💡 Get your ID from <strong>analytics.google.com</strong> → Create Property → Data Streams → Web → copy <code>G-XXXXXXXXXX</code>.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-header">🟠 On-Page SEO</div>
+
+        <div class="card" id="task5">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">05</span>
+            <span class="task-name">Fix All Image Alt Text</span>
+            <span class="file-ref">src/**/*.jsx</span>
+            <span class="tag onpage">On-Page</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>Alt text is not keyword-optimized. Search for <code>&lt;img</code> across the whole <code>src/</code> folder and update every instance.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">jsx</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre><span class="c">// ❌ Wrong</span>
+&lt;img src="/car-wrap.jpg" /&gt;
+&lt;img src="/car-wrap.jpg" alt="image" /&gt;
+
+<span class="c">// ✅ Correct</span>
+&lt;img src="/car-wrap.jpg" alt="custom vinyl car wrap service Chennai" /&gt;
+&lt;img src="/ceramic.jpg"  alt="professional ceramic coating for cars Chennai" /&gt;
+&lt;img src="/sticker.jpg"  alt="custom label stickers vehicle branding DRK Stickers" /&gt;</pre></div>
+            </div>
+            <div class="hint">💡 Use <strong>Ctrl+Shift+F</strong> in VS Code to find all <code>&lt;img</code> tags. Include <strong>service name + city</strong> in each alt naturally.</div>
+          </div>
+        </div>
+
+        <div class="card" id="task6">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">06</span>
+            <span class="task-name">Add JSON-LD Schema Markup</span>
+            <span class="file-ref">index.html</span>
+            <span class="tag onpage">On-Page</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>No structured data detected. Schema helps Google show rich results (address, hours, ratings) directly in search.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">index.html — inside &lt;head&gt;</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre>&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "DRK Stickers",
+  "url": "https://www.drkstickers.com",
+  "telephone": "+91-XXXXXXXXXX",
+  "email": "drkstickerspro@gmail.com",
+  "description": "Premium car wraps, vinyl stickers and ceramic coating in Chennai.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "No. 56, Sathy Road",
+    "addressLocality": "Chennai",
+    "addressRegion": "Tamil Nadu",
+    "postalCode": "XXXXXX",
+    "addressCountry": "IN"
+  },
+  "openingHours": "Mo-Sa 09:00-19:00"
+}
+&lt;/script&gt;</pre></div>
+            </div>
+            <div class="hint">💡 Fill in real phone and address. Test at <strong>search.google.com/test/rich-results</strong> after deploying.</div>
+          </div>
+        </div>
+
+        <div class="card" id="task7">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">07</span>
+            <span class="task-name">Add Internal Links Between Pages</span>
+            <span class="file-ref">src/pages/*.jsx</span>
+            <span class="tag onpage">On-Page</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>Poor internal linking means Google can't efficiently discover your site structure. Every page should link to at least 2 others.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">jsx</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre><span class="k">import</span> { Link } <span class="k">from</span> <span class="s">'react-router-dom'</span>
+
+<span class="c">// Homepage</span>
+&lt;Link to="/services"&gt;Explore Our Services →&lt;/Link&gt;
+&lt;Link to="/gallery"&gt;View Our Work&lt;/Link&gt;
+
+<span class="c">// Services page</span>
+&lt;Link to="/contact"&gt;Book This Service&lt;/Link&gt;
+&lt;Link to="/gallery"&gt;See Results in Our Gallery&lt;/Link&gt;
+
+<span class="c">// Footer — link to all pages</span>
+&lt;Link to="/"&gt;Home&lt;/Link&gt;
+&lt;Link to="/services"&gt;Services&lt;/Link&gt;
+&lt;Link to="/about"&gt;About&lt;/Link&gt;
+&lt;Link to="/contact"&gt;Contact&lt;/Link&gt;</pre></div>
+            </div>
+            <div class="hint">💡 Always use React Router's <code>&lt;Link&gt;</code>, not <code>&lt;a href&gt;</code>, for internal navigation to avoid full page reloads.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-header">🟢 Content & Structure</div>
+
+        <div class="card" id="task8">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">08</span>
+            <span class="task-name">Create Separate Page Routes + Fix vercel.json</span>
+            <span class="file-ref">App.jsx</span>
+            <span class="file-ref">vercel.json</span>
+            <span class="tag content">Content</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>Separate pages let each URL rank independently. Also, React Router requires a Vercel rewrite or direct URL visits will return a 404.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">App.jsx</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre><span class="k">import</span> { BrowserRouter, Routes, Route } <span class="k">from</span> <span class="s">'react-router-dom'</span>
+
+&lt;BrowserRouter&gt;
+  &lt;Routes&gt;
+    &lt;Route path="/"         element={&lt;Home /&gt;}    /&gt;
+    &lt;Route path="/services" element={&lt;Services /&gt;} /&gt;
+    &lt;Route path="/gallery"  element={&lt;Gallery /&gt;}  /&gt;
+    &lt;Route path="/about"    element={&lt;About /&gt;}    /&gt;
+    &lt;Route path="/contact"  element={&lt;Contact /&gt;}  /&gt;
+    &lt;Route path="/blog"     element={&lt;Blog /&gt;}     /&gt;
+  &lt;/Routes&gt;
+&lt;/BrowserRouter&gt;</pre></div>
+            </div>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">vercel.json</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre>{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}</pre></div>
+            </div>
+            <div class="hint">💡 Without the vercel.json rewrite, refreshing any route like <code>/services</code> returns a 404. This tells Vercel to serve <code>index.html</code> and let React handle routing.</div>
+          </div>
+        </div>
+
+        <div class="card" id="task9">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">09</span>
+            <span class="task-name">Add FAQ Section to Services Page</span>
+            <span class="file-ref">src/pages/Services.jsx</span>
+            <span class="tag content">Content</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>FAQs improve dwell time, naturally include long-tail keywords, and can appear as rich snippets in Google search.</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">Services.jsx</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre><span class="k">import</span> { useState } <span class="k">from</span> <span class="s">'react'</span>
+
+<span class="k">const</span> faqs = [
+  { q: <span class="s">"How long does a car wrap last?"</span>,
+    a: <span class="s">"A quality vinyl wrap lasts 5–7 years with proper care."</span> },
+  { q: <span class="s">"Do you offer ceramic coating in Chennai?"</span>,
+    a: <span class="s">"Yes, at our Chennai facility."</span> },
+  { q: <span class="s">"What types of vehicles can be wrapped?"</span>,
+    a: <span class="s">"Cars, SUVs, bikes, trucks and commercial vehicles."</span> },
+  { q: <span class="s">"How much does a full car wrap cost?"</span>,
+    a: <span class="s">"Depends on size and wrap type. Contact us for a free quote."</span> },
+]
+
+<span class="k">export function</span> FAQ() {
+  <span class="k">const</span> [open, setOpen] = useState(null)
+  <span class="k">return</span> (
+    &lt;section&gt;
+      &lt;h2&gt;Frequently Asked Questions&lt;/h2&gt;
+      {faqs.map((f, i) =&gt; (
+        &lt;div key={i} onClick={() =&gt; setOpen(open === i ? null : i)}&gt;
+          &lt;h3&gt;{f.q}&lt;/h3&gt;
+          {open === i &amp;&amp; &lt;p&gt;{f.a}&lt;/p&gt;}
+        &lt;/div&gt;
+      ))}
+    &lt;/section&gt;
+  )
+}</pre></div>
+            </div>
+            <div class="hint">💡 Use keywords naturally in the question and answer text. Add <code>FAQPage</code> JSON-LD schema to enable rich snippets in Google.</div>
+          </div>
+        </div>
+
+        <div class="card" id="task10">
+          <div class="card-header" onclick="toggle(this)">
+            <span class="task-id">10</span>
+            <span class="task-name">Add Location Keywords to Page Copy</span>
+            <span class="file-ref">All page components</span>
+            <span class="tag content">Local SEO</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="card-body">
+            <p>Local SEO signals are missing. Adding city and area names helps Google rank for searches like "car wrap Chennai" or "car stickers near me."</p>
+            <div class="code-block">
+              <div class="code-top"><span class="code-lang">jsx</span><button class="copy-btn" onclick="cp(this)">Copy</button></div>
+              <div class="code-scroll"><pre><span class="c">// ❌ Generic</span>
+&lt;h1&gt;Premium Car Wraps &amp; Stickers&lt;/h1&gt;
+
+<span class="c">// ✅ With local SEO</span>
+&lt;h1&gt;Premium Car Wraps &amp; Stickers in Chennai&lt;/h1&gt;
+&lt;p&gt;
+  Serving customers across Chennai, Tambaram,
+  OMR, Velachery and surrounding areas.
+&lt;/p&gt;
+
+<span class="c">// Subheadings too</span>
+&lt;h2&gt;Ceramic Coating Services in Chennai&lt;/h2&gt;
+&lt;h2&gt;Custom Vehicle Wraps — Chennai's Trusted Experts&lt;/h2&gt;</pre></div>
+            </div>
+            <div class="hint">💡 Use the city name <strong>2–3 times per page max</strong>. Focus on the <code>&lt;h1&gt;</code>, first paragraph, and one subheading. Add nearby areas (Tambaram, OMR, Velachery) for hyper-local targeting.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div id="tab-checklist" class="section">
+      <div class="page-title">Task Checklist</div>
+      <p class="page-sub">Click to mark tasks done. Progress saves in your browser.</p>
+
+      <div class="checklist">
+        <div class="cl-head">🔴 Critical</div>
+        <div class="cl-item" onclick="check(this)" data-id="t1">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Create <code>public/robots.txt</code> with Allow rules and sitemap URL</div>
+          <div class="cl-file">public/robots.txt</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t2">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Create <code>public/sitemap.xml</code> with all page URLs</div>
+          <div class="cl-file">public/sitemap.xml</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t3">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Submit sitemap in Google Search Console after deploy</div>
+          <div class="cl-file">Search Console</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t4">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Install react-helmet-async and add unique meta title + description to all 6 pages</div>
+          <div class="cl-file">src/pages/*.jsx</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t5">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Add GA4 tracking script to index.html</div>
+          <div class="cl-file">index.html</div>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <div class="cl-head">🟠 On-Page SEO</div>
+        <div class="cl-item" onclick="check(this)" data-id="t6">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Add keyword-optimized alt text to every &lt;img&gt; in src/</div>
+          <div class="cl-file">All components</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t7">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Add LocalBusiness JSON-LD schema to index.html</div>
+          <div class="cl-file">index.html</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t8">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Add internal &lt;Link&gt; between all pages (min 2 per page)</div>
+          <div class="cl-file">src/pages/*.jsx</div>
+        </div>
+      </div>
+
+      <div class="checklist">
+        <div class="cl-head">🟢 Content & Structure</div>
+        <div class="cl-item" onclick="check(this)" data-id="t9">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Create separate page files: Home, Services, Gallery, About, Contact, Blog</div>
+          <div class="cl-file">src/pages/</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t10">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Set up React Router routes in App.jsx</div>
+          <div class="cl-file">App.jsx</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t11">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Add rewrite rule to vercel.json for React Router</div>
+          <div class="cl-file">vercel.json</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t12">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Add FAQ accordion to Services page</div>
+          <div class="cl-file">Services.jsx</div>
+        </div>
+        <div class="cl-item" onclick="check(this)" data-id="t13">
+          <div class="cl-box">✓</div>
+          <div class="cl-task">Add "in Chennai" to h1 headings and key paragraphs across all pages</div>
+          <div class="cl-file">All pages</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEYWORDS -->
+    <div id="tab-keywords" class="section">
+      <div class="page-title">Target Keywords</div>
+      <p class="page-sub">Assign one primary keyword per page. Use it in the title, h1, and first paragraph.</p>
+      <div class="kw-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Keyword</th>
+              <th>Monthly Searches</th>
+              <th>Volume</th>
+              <th>Assign To</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">custom label stickers</td>
+              <td class="vol">720</td>
+              <td><span class="bar" style="width:90px"></span></td>
+              <td><span class="tag content">Home / Services</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">protective coating for cars</td>
+              <td class="vol">110</td>
+              <td><span class="bar" style="width:40px"></span></td>
+              <td><span class="tag content">Services</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">professional ceramic coating</td>
+              <td class="vol">40</td>
+              <td><span class="bar" style="width:18px"></span></td>
+              <td><span class="tag content">Services</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">best car detailing services</td>
+              <td class="vol">10</td>
+              <td><span class="bar" style="width:6px"></span></td>
+              <td><span class="tag onpage">Blog</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">commercial vehicle wrap design</td>
+              <td class="vol">10</td>
+              <td><span class="bar" style="width:6px"></span></td>
+              <td><span class="tag onpage">Services</span></td>
+            </tr>
+            <tr>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">promotional stickers for business</td>
+              <td class="vol">10</td>
+              <td><span class="bar" style="width:6px"></span></td>
+              <td><span class="tag onpage">Services / Blog</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- COMPETITORS -->
+    <div id="tab-competitors" class="section">
+      <div class="page-title">Competitor Benchmarks</div>
+      <p class="page-sub">Where DRK Stickers stands vs the competition right now.</p>
+
+      <div class="comp-card yours">
+        <div class="comp-top">
+          <div><div class="comp-name">DRK Stickers</div><div class="comp-url">drkstickers.com</div></div>
+          <span class="tag critical">Your Site</span>
+        </div>
+        <div class="comp-stats">
+          <div><div class="stat-val">0</div><div class="stat-lbl">Traffic</div></div>
+          <div><div class="stat-val">0</div><div class="stat-lbl">Keywords</div></div>
+          <div><div class="stat-val">1</div><div class="stat-lbl">Domain Auth</div></div>
+          <div><div class="stat-val">0</div><div class="stat-lbl">Backlinks</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-top">
+          <div><div class="comp-name">The Detailing Mafia</div><div class="comp-url">thedetailingmafia.com</div></div>
+          <span class="tag">Top Competitor</span>
+        </div>
+        <div class="comp-stats">
+          <div><div class="stat-val">107K</div><div class="stat-lbl">Traffic</div></div>
+          <div><div class="stat-val">25.4K</div><div class="stat-lbl">Keywords</div></div>
+          <div><div class="stat-val">31</div><div class="stat-lbl">Domain Auth</div></div>
+          <div><div class="stat-val">26K</div><div class="stat-lbl">Backlinks</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-top">
+          <div><div class="comp-name">OCD About Cars</div><div class="comp-url">ocdaboutcars.in</div></div>
+          <span class="tag content">Reachable</span>
+        </div>
+        <div class="comp-stats">
+          <div><div class="stat-val">1.5K</div><div class="stat-lbl">Traffic</div></div>
+          <div><div class="stat-val">75</div><div class="stat-lbl">Keywords</div></div>
+          <div><div class="stat-val">11</div><div class="stat-lbl">Domain Auth</div></div>
+          <div><div class="stat-val">4.6K</div><div class="stat-lbl">Backlinks</div></div>
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-top">
+          <div><div class="comp-name">Cars Buddy</div><div class="comp-url">carsbuddy.in</div></div>
+          <span class="tag content">Reachable</span>
+        </div>
+        <div class="comp-stats">
+          <div><div class="stat-val">1.3K</div><div class="stat-lbl">Traffic</div></div>
+          <div><div class="stat-val">391</div><div class="stat-lbl">Keywords</div></div>
+          <div><div class="stat-val">16</div><div class="stat-lbl">Domain Auth</div></div>
+          <div><div class="stat-val">365</div><div class="stat-lbl">Backlinks</div></div>
+        </div>
+      </div>
+
+      <div class="hint" style="margin-top:16px">🎯 <strong>Realistic 6-month goal:</strong> After completing all 10 tasks + ~50 backlinks + 4–6 blog posts → target <strong>500–1,500 organic monthly visitors</strong>, reaching the level of OCD About Cars and Cars Buddy.</div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  function showTab(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const ch = header.querySelector('.chevron');
+    body.classList.toggle('open');
+    ch.classList.toggle('open');
+  }
+
+  function hl(el) {
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function cp(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('ok');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1800);
+    });
+  }
+
+  function cpText(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('ok');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('ok'); }, 1800);
+    });
+  }
+
+  function check(item) {
+    item.classList.toggle('done');
+    const state = JSON.parse(localStorage.getItem('drk-cl') || '{}');
+    state[item.dataset.id] = item.classList.contains('done');
+    localStorage.setItem('drk-cl', JSON.stringify(state));
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const state = JSON.parse(localStorage.getItem('drk-cl') || '{}');
+    Object.entries(state).forEach(([id, done]) => {
+      if (done) {
+        const el = document.querySelector(`[data-id="${id}"]`);
+        if (el) el.classList.add('done');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
