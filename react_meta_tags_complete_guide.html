@@ -1,0 +1,417 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary);font-size:14px}
+.wrapper{padding:16px}
+.step-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+.sn{padding:6px 12px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;border:1px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);transition:all .15s}
+.sn.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.panel{display:none}.panel.active{display:block}
+.step-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--color-text-primary);color:var(--color-background-primary);font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:16px;font-weight:500}
+.step-sub{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px}
+.file-label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 6px}
+.file-label i{font-size:14px}
+pre{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:8px;padding:14px;font-family:var(--font-mono);font-size:12px;line-height:1.65;overflow-x:auto;white-space:pre;position:relative}
+.copy-btn{position:absolute;top:8px;right:8px;font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;font-family:var(--font-sans)}
+.copy-btn:hover{background:var(--color-background-tertiary)}
+.note{background:var(--color-background-secondary);border-left:3px solid #378ADD;border-radius:0 8px 8px 0;padding:10px 14px;font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin:12px 0}
+.warn{border-left-color:#EF9F27}
+.success{border-left-color:#639922}
+.note strong{color:var(--color-text-primary);font-weight:500}
+.folder-tree{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:8px;padding:14px;font-family:var(--font-mono);font-size:12px;line-height:2;color:var(--color-text-secondary)}
+.folder-tree .hi{color:var(--color-text-primary);font-weight:500}
+code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:3px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;margin-left:6px}
+.b-blue{background:#E6F1FB;color:#185FA5}
+.b-green{background:#EAF3DE;color:#3B6D11}
+.b-amber{background:#FAEEDA;color:#854F0B}
+.nav-btns{display:flex;gap:8px;margin-top:18px}
+.nav-btn{padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;border:1px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-family:var(--font-sans)}
+.nav-btn.primary{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.nav-btn:hover{opacity:.85}
+</style>
+
+<div class="wrapper">
+<div class="step-nav">
+  <div class="sn active" onclick="go(0)">1. Install</div>
+  <div class="sn" onclick="go(1)">2. Folder structure</div>
+  <div class="sn" onclick="go(2)">3. index.jsx</div>
+  <div class="sn" onclick="go(3)">4. SEO component</div>
+  <div class="sn" onclick="go(4)">5. Each page</div>
+  <div class="sn" onclick="go(5)">6. React Router</div>
+  <div class="sn" onclick="go(6)">7. SSR fix</div>
+  <div class="sn" onclick="go(7)">8. Test it</div>
+</div>
+
+<!-- STEP 1 -->
+<div class="panel active" id="p0">
+  <div class="step-header"><div class="step-num">1</div><div class="step-title">Install the package</div></div>
+  <p class="step-sub">Install <code>react-helmet-async</code>. This is safer than the original <code>react-helmet</code> (which has a known memory leak in SSR).</p>
+  <div class="file-label"><i class="ti ti-terminal" aria-hidden="true"></i> Terminal</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i1')">Copy</button>
+    <pre id="i1"># npm
+npm install react-helmet-async
+
+# or yarn
+yarn add react-helmet-async
+
+# or pnpm
+pnpm add react-helmet-async</pre>
+  </div>
+  <div class="note"><strong>Why react-helmet-async?</strong> It uses React Context properly and is safe for server-side rendering — important if you plan to add SSR later.</div>
+  <div class="nav-btns"><div class="nav-btn primary" onclick="go(1)">Next →</div></div>
+</div>
+
+<!-- STEP 2 -->
+<div class="panel" id="p1">
+  <div class="step-header"><div class="step-num">2</div><div class="step-title">Recommended folder structure</div></div>
+  <p class="step-sub">Your project should look like this. You'll create the highlighted files.</p>
+  <div class="folder-tree">
+src/<br>
+├── <span class="hi">components/</span><br>
+│   └── <span class="hi">SEO.jsx</span>          ← reusable meta tag component<br>
+├── pages/<br>
+│   ├── Home.jsx<br>
+│   ├── Services.jsx<br>
+│   ├── SunFilm.jsx<br>
+│   ├── Ceramic.jsx<br>
+│   └── Contact.jsx<br>
+├── <span class="hi">index.jsx</span>            ← wrap with HelmetProvider here<br>
+└── App.jsx               ← routes live here
+  </div>
+  <div class="note"><strong>Rule:</strong> The <code>SEO.jsx</code> component is created once. Every page imports it and passes its own unique values.</div>
+  <div class="nav-btns">
+    <div class="nav-btn" onclick="go(0)">← Back</div>
+    <div class="nav-btn primary" onclick="go(2)">Next →</div>
+  </div>
+</div>
+
+<!-- STEP 3 -->
+<div class="panel" id="p2">
+  <div class="step-header"><div class="step-num">3</div><div class="step-title">Wrap your app in HelmetProvider</div></div>
+  <p class="step-sub">Open <code>src/index.jsx</code> (or <code>main.jsx</code>) and wrap the entire app. This is done <strong>once only</strong>.</p>
+  <div class="file-label"><i class="ti ti-file-code" aria-hidden="true"></i> src/index.jsx</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i2')">Copy</button>
+    <pre id="i2">import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async'  // ← import this
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  &lt;React.StrictMode&gt;
+    &lt;HelmetProvider&gt;   {/* ← wrap here */}
+      &lt;App /&gt;
+    &lt;/HelmetProvider&gt;
+  &lt;/React.StrictMode&gt;
+)</pre>
+  </div>
+  <div class="note"><strong>Done once.</strong> Every <code>&lt;Helmet&gt;</code> tag anywhere inside the app will now work correctly.</div>
+  <div class="nav-btns">
+    <div class="nav-btn" onclick="go(1)">← Back</div>
+    <div class="nav-btn primary" onclick="go(3)">Next →</div>
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="panel" id="p3">
+  <div class="step-header"><div class="step-num">4</div><div class="step-title">Create the reusable SEO component</div></div>
+  <p class="step-sub">Create <code>src/components/SEO.jsx</code>. This is your single place for all meta tag logic — every page just passes its own values as props.</p>
+  <div class="file-label"><i class="ti ti-file-code" aria-hidden="true"></i> src/components/SEO.jsx</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i3')">Copy</button>
+    <pre id="i3">import { Helmet } from 'react-helmet-async'
+
+export default function SEO({
+  title,
+  description,
+  keywords,
+  canonical,
+  ogImage = 'https://drkstickers.com/images/default-og.jpg',
+  ogType = 'website',
+}) {
+  const siteName = 'DRK Stickers Coimbatore'
+  const fullTitle = `${title} | ${siteName}`
+
+  return (
+    &lt;Helmet&gt;
+      {/* Basic */}
+      &lt;title&gt;{fullTitle}&lt;/title&gt;
+      &lt;meta name="description" content={description} /&gt;
+      &lt;meta name="keywords" content={keywords} /&gt;
+      &lt;link rel="canonical" href={canonical} /&gt;
+
+      {/* Open Graph (Facebook, WhatsApp, LinkedIn) */}
+      &lt;meta property="og:type" content={ogType} /&gt;
+      &lt;meta property="og:site_name" content={siteName} /&gt;
+      &lt;meta property="og:title" content={fullTitle} /&gt;
+      &lt;meta property="og:description" content={description} /&gt;
+      &lt;meta property="og:url" content={canonical} /&gt;
+      &lt;meta property="og:image" content={ogImage} /&gt;
+      &lt;meta property="og:image:width" content="1200" /&gt;
+      &lt;meta property="og:image:height" content="630" /&gt;
+
+      {/* Twitter / X */}
+      &lt;meta name="twitter:card" content="summary_large_image" /&gt;
+      &lt;meta name="twitter:title" content={fullTitle} /&gt;
+      &lt;meta name="twitter:description" content={description} /&gt;
+      &lt;meta name="twitter:image" content={ogImage} /&gt;
+    &lt;/Helmet&gt;
+  )
+}</pre>
+  </div>
+  <div class="note success"><strong>Tip:</strong> The <code>fullTitle</code> auto-appends your site name so you only pass short titles like <code>"Car Detailing Services"</code> and it becomes <code>"Car Detailing Services | DRK Stickers Coimbatore"</code>.</div>
+  <div class="nav-btns">
+    <div class="nav-btn" onclick="go(2)">← Back</div>
+    <div class="nav-btn primary" onclick="go(4)">Next →</div>
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<div class="panel" id="p4">
+  <div class="step-header"><div class="step-num">5</div><div class="step-title">Add SEO to each page</div></div>
+  <p class="step-sub">Import the SEO component into every page and pass unique values. Here are examples for all your DRK Stickers pages:</p>
+
+  <div class="file-label"><i class="ti ti-home" aria-hidden="true"></i> src/pages/Home.jsx</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i4')">Copy</button>
+    <pre id="i4">import SEO from '../components/SEO'
+
+export default function Home() {
+  return (
+    &lt;&gt;
+      &lt;SEO
+        title="Best Car Detailing &amp; Sun Film Studio"
+        description="DRK Stickers is Coimbatore's top-rated car detailing, ceramic coating, sun film and signboard studio in Sidhapudur. Book your service today."
+        keywords="best car detailing coimbatore, car detailing sidhapudur, drk stickers"
+        canonical="https://drkstickers.com/"
+        ogImage="https://drkstickers.com/images/home-og.jpg"
+      /&gt;
+      {/* rest of your page */}
+    &lt;/&gt;
+  )
+}</pre>
+  </div>
+
+  <div class="file-label"><i class="ti ti-car" aria-hidden="true"></i> src/pages/Services.jsx</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i5')">Copy</button>
+    <pre id="i5">import SEO from '../components/SEO'
+
+export default function Services() {
+  return (
+    &lt;&gt;
+      &lt;SEO
+        title="Car Detailing Services"
+        description="Full range of car detailing services in Coimbatore — interior cleaning, paint correction, scratch removal, and more at DRK Stickers."
+        keywords="car detailing services coimbatore, interior detailing, paint correction"
+        canonical="https://drkstickers.com/services"
+        ogImage="https://drkstickers.com/images/services-og.jpg"
+      /&gt;
+      {/* rest of your page */}
+    &lt;/&gt;
+  )
+}</pre>
+  </div>
+
+  <div class="file-label"><i class="ti ti-sun" aria-hidden="true"></i> src/pages/SunFilm.jsx</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i6')">Copy</button>
+    <pre id="i6">import SEO from '../components/SEO'
+
+export default function SunFilm() {
+  return (
+    &lt;&gt;
+      &lt;SEO
+        title="Sun Film Installation Coimbatore"
+        description="Best quality sun film installation for cars in Coimbatore. UV protection, heat rejection, privacy glass — certified films at DRK Stickers Sidhapudur."
+        keywords="sun film coimbatore, car window tinting coimbatore, uv film sidhapudur"
+        canonical="https://drkstickers.com/sun-film"
+        ogImage="https://drkstickers.com/images/sunfilm-og.jpg"
+      /&gt;
+      {/* rest of your page */}
+    &lt;/&gt;
+  )
+}</pre>
+  </div>
+
+  <div class="file-label"><i class="ti ti-droplet" aria-hidden="true"></i> src/pages/Ceramic.jsx</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i7')">Copy</button>
+    <pre id="i7">import SEO from '../components/SEO'
+
+export default function Ceramic() {
+  return (
+    &lt;&gt;
+      &lt;SEO
+        title="Ceramic Coating Coimbatore"
+        description="Professional ceramic coating services in Coimbatore. Long-lasting paint protection, glossy finish, and hydrophobic coating for your car at DRK Stickers."
+        keywords="ceramic coating coimbatore, nano ceramic coating, paint protection coimbatore"
+        canonical="https://drkstickers.com/ceramic-coating"
+        ogImage="https://drkstickers.com/images/ceramic-og.jpg"
+      /&gt;
+      {/* rest of your page */}
+    &lt;/&gt;
+  )
+}</pre>
+  </div>
+
+  <div class="nav-btns">
+    <div class="nav-btn" onclick="go(3)">← Back</div>
+    <div class="nav-btn primary" onclick="go(5)">Next →</div>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div class="panel" id="p5">
+  <div class="step-header"><div class="step-num">6</div><div class="step-title">Set up React Router (App.jsx)</div></div>
+  <p class="step-sub">Your <code>App.jsx</code> handles routing. Make sure each route renders its page component (which already includes the SEO component inside it).</p>
+  <div class="file-label"><i class="ti ti-file-code" aria-hidden="true"></i> src/App.jsx</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i8')">Copy</button>
+    <pre id="i8">import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Services from './pages/Services'
+import SunFilm from './pages/SunFilm'
+import Ceramic from './pages/Ceramic'
+import Contact from './pages/Contact'
+
+export default function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+        &lt;Route path="/services" element={&lt;Services /&gt;} /&gt;
+        &lt;Route path="/sun-film" element={&lt;SunFilm /&gt;} /&gt;
+        &lt;Route path="/ceramic-coating" element={&lt;Ceramic /&gt;} /&gt;
+        &lt;Route path="/contact" element={&lt;Contact /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/BrowserRouter&gt;
+  )
+}</pre>
+  </div>
+  <div class="note"><strong>How it works:</strong> When the URL changes to <code>/sun-film</code>, React renders <code>&lt;SunFilm /&gt;</code> which contains its own <code>&lt;SEO&gt;</code> — so the meta tags update automatically on every navigation.</div>
+  <div class="nav-btns">
+    <div class="nav-btn" onclick="go(4)">← Back</div>
+    <div class="nav-btn primary" onclick="go(6)">Next →</div>
+  </div>
+</div>
+
+<!-- STEP 7 -->
+<div class="panel" id="p6">
+  <div class="step-header"><div class="step-num">7</div><div class="step-title">Fix for Google — add prerendering (SSR)</div></div>
+  <p class="step-sub">react-helmet-async updates tags in the browser, but Google's crawler reads the raw HTML before JavaScript runs. You need one of these solutions:</p>
+
+  <div class="note warn"><strong>⚠️ Without this step,</strong> Inspect Element will show correct tags but <strong>View Page Source</strong> will still show homepage tags — and Google will still not read them.</div>
+
+  <div class="file-label"><i class="ti ti-star" aria-hidden="true"></i> Option A — Migrate to Next.js (Best long-term fix)</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i9')">Copy</button>
+    <pre id="i9"># Create a new Next.js project
+npx create-next-app@latest drk-stickers-next
+
+# Copy your React components into the new project
+# Replace react-helmet-async with next/head or generateMetadata()
+# No other changes needed to your page logic</pre>
+  </div>
+
+  <div class="file-label"><i class="ti ti-bolt" aria-hidden="true"></i> Option B — Add Vite SSR plugin (if using Vite)</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i10')">Copy</button>
+    <pre id="i10">npm install vite-plugin-ssr
+
+# This adds server-side rendering to your existing
+# Vite + React project without a full migration</pre>
+  </div>
+
+  <div class="file-label"><i class="ti ti-cloud" aria-hidden="true"></i> Option C — Use a prerender service (quickest fix)</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i11')">Copy</button>
+    <pre id="i11"># Services like prerender.io or Netlify Edge Functions
+# intercept bot requests and serve a pre-rendered HTML snapshot
+# Your React app stays unchanged — just add the service in front of it
+
+# Popular options:
+# - prerender.io (paid, plug-and-play)
+# - Netlify Edge Functions (free tier available)
+# - Vercel (deploy your app there, SSR is automatic)</pre>
+  </div>
+
+  <div class="note success"><strong>Quickest win:</strong> Deploy to <strong>Vercel</strong>. Connect your GitHub repo, Vercel automatically detects React and handles prerendering. Free for small sites.</div>
+  <div class="nav-btns">
+    <div class="nav-btn" onclick="go(5)">← Back</div>
+    <div class="nav-btn primary" onclick="go(7)">Next →</div>
+  </div>
+</div>
+
+<!-- STEP 8 -->
+<div class="panel" id="p7">
+  <div class="step-header"><div class="step-num">8</div><div class="step-title">Test that it's working</div></div>
+  <p class="step-sub">After implementing, verify each page has unique meta tags:</p>
+
+  <div class="file-label"><i class="ti ti-eye" aria-hidden="true"></i> Browser test</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i12')">Copy</button>
+    <pre id="i12">1. Go to https://drkstickers.com/sun-film
+2. Right-click → View Page Source
+3. Press Ctrl+F and search: og:title
+4. You should see: "Sun Film Installation Coimbatore | DRK Stickers"
+   NOT: "Best Car Detailing & Sun Film Studio | DRK Stickers"
+
+If it shows homepage title → SSR is not active yet (Step 7 needed)
+If it shows the right title → ✅ Done!</pre>
+  </div>
+
+  <div class="file-label"><i class="ti ti-tool" aria-hidden="true"></i> Free SEO audit tools</div>
+  <div style="position:relative">
+    <button class="copy-btn" onclick="cp(this,'i13')">Copy</button>
+    <pre id="i13">Google Rich Results Test:
+→ https://search.google.com/test/rich-results
+
+Facebook Sharing Debugger (tests og: tags):
+→ https://developers.facebook.com/tools/debug
+
+Twitter Card Validator:
+→ https://cards-dev.twitter.com/validator
+
+Check all pages at once (free):
+→ https://www.screamingfrog.co.uk/seo-spider
+   Crawls your whole site and lists title/meta for every URL</pre>
+  </div>
+
+  <div class="note success">
+    <strong>✅ Success checklist:</strong><br>
+    Each page URL shows a different title in View Page Source<br>
+    Each page has a unique description and canonical URL<br>
+    og:url matches the actual page URL (not the homepage)<br>
+    Google Search Console shows no "Duplicate title tags" warnings
+  </div>
+
+  <div class="nav-btns">
+    <div class="nav-btn" onclick="go(6)">← Back</div>
+    <div class="nav-btn primary" onclick="go(0)">↩ Start over</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const panels = document.querySelectorAll('.panel')
+const navs = document.querySelectorAll('.sn')
+function go(i) {
+  panels.forEach(p => p.classList.remove('active'))
+  navs.forEach(n => n.classList.remove('active'))
+  panels[i].classList.add('active')
+  navs[i].classList.add('active')
+}
+function cp(btn, id) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    btn.textContent = 'Copied!'
+    setTimeout(() => btn.textContent = 'Copy', 1600)
+  })
+}
+</script>
